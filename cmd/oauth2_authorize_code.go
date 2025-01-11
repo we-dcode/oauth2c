@@ -5,10 +5,9 @@ import (
 	"net/http"
 
 	"github.com/we-dcode/oauth2c/internal/oauth2"
-	"github.com/cli/browser"
 )
 
-func (c *OAuth2Cmd) AuthorizationCodeGrantFlow(clientConfig oauth2.ClientConfig, serverConfig oauth2.ServerConfig, hc *http.Client) error {
+func (c *OAuth2Cmd) AuthorizationCodeGrantFlow(clientConfig oauth2.ClientConfig, serverConfig oauth2.ServerConfig, hc *http.Client, customBrowser CustomBrowser) error {
 	var (
 		parRequest       oauth2.Request
 		parResponse      oauth2.PARResponse
@@ -56,7 +55,7 @@ func (c *OAuth2Cmd) AuthorizationCodeGrantFlow(clientConfig oauth2.ClientConfig,
 
 	Logfln("\nOpen the following URL:\n\n%s\n", authorizeRequest.URL.String())
 
-	if err = browser.OpenURL(authorizeRequest.URL.String()); err != nil {
+	if err = customBrowser(authorizeRequest.URL.String()); err != nil {
 		LogError(err)
 	}
 

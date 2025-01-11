@@ -23,11 +23,13 @@ var (
 	noPrompt bool
 )
 
+type CustomBrowser = func(string) error
+
 type OAuth2Cmd struct {
 	*cobra.Command
 }
 
-func NewOAuth2Cmd(version, commit, date string) (cmd *OAuth2Cmd) {
+func NewOAuth2Cmd(version, commit, date string, customBrowser CustomBrowser) (cmd *OAuth2Cmd) {
 	var (
 		cconfig oauth2.ClientConfig
 		sconfig oauth2.ServerConfig
@@ -41,7 +43,7 @@ func NewOAuth2Cmd(version, commit, date string) (cmd *OAuth2Cmd) {
 		},
 	}
 
-	cmd.Command.Run = cmd.Run(&cconfig, &sconfig)
+	cmd.Command.Run = cmd.Run(&cconfig, &sconfig, customBrowser)
 
 	cmd.AddCommand(NewVersionCmd(version, commit, date))
 	cmd.AddCommand(docsCmd)
@@ -101,7 +103,7 @@ func NewOAuth2Cmd(version, commit, date string) (cmd *OAuth2Cmd) {
 	return cmd
 }
 
-func (c *OAuth2Cmd) Run(cconfig *oauth2.ClientConfig, sconfig *oauth2.ServerConfig) func(cmd *cobra.Command, args []string) {
+func (c *OAuth2Cmd) Run(cconfig *oauth2.ClientConfig, sconfig *oauth2.ServerConfig, customBrowser CustomBrowser) func(cmd *cobra.Command, args []string) {
 	return func(cmd *cobra.Command, args []string) {
 		var (
 			config Config
@@ -161,7 +163,7 @@ func (c *OAuth2Cmd) Run(cconfig *oauth2.ClientConfig, sconfig *oauth2.ServerConf
 			}
 		}
 
-		if err := c.Authorize(*cconfig, *sconfig, hc); err != nil {
+		if err := c.Authorize(*cconfig, *sconfig, hc, customBrowser); err != nil {
 			var oauth2Error *oauth2.Error
 
 			if errors.As(err, &oauth2Error) {
@@ -181,6 +183,7 @@ func (c *OAuth2Cmd) Authorize(
 	clientConfig oauth2.ClientConfig,
 	serverConfig oauth2.ServerConfig,
 	hc *http.Client,
+	customBrowser func(string) error,
 ) error {
 	var (
 		serverRequest oauth2.Request
@@ -207,7 +210,7 @@ func (c *OAuth2Cmd) Authorize(
 
 	switch clientConfig.GrantType {
 	case oauth2.AuthorizationCodeGrantType:
-		return c.AuthorizationCodeGrantFlow(clientConfig, serverConfig, hc)
+		return c.AuthorizationCodeGrantFlow(clientConfig, serverConfig, hc, customBrowser)
 	case oauth2.ImplicitGrantType:
 		return c.ImplicitGrantFlow(clientConfig, serverConfig, hc)
 	case oauth2.ClientCredentialsGrantType:
