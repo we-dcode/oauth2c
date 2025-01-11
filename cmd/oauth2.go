@@ -13,9 +13,9 @@ import (
 	"time"
 
 	"github.com/cli/browser"
-	"github.com/cloudentity/oauth2c/internal/oauth2"
 	"github.com/imdario/mergo"
 	"github.com/spf13/cobra"
+	"github.com/we-dcode/oauth2c/internal/oauth2"
 )
 
 var (

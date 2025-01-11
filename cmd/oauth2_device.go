@@ -6,7 +6,7 @@ import (
 	"net/http"
 	"time"
 
-	"github.com/cloudentity/oauth2c/internal/oauth2"
+	"github.com/we-dcode/oauth2c/internal/oauth2"
 	"github.com/cli/browser"
 )
 
