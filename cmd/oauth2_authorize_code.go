@@ -55,9 +55,11 @@ func (c *OAuth2Cmd) AuthorizationCodeGrantFlow(clientConfig oauth2.ClientConfig,
 
 	Logfln("\nOpen the following URL:\n\n%s\n", authorizeRequest.URL.String())
 
-	if err = customBrowser(authorizeRequest.URL.String()); err != nil {
-		LogError(err)
-	}
+	go func() {
+		if err = customBrowser(authorizeRequest.URL.String()); err != nil {
+			LogError(err)
+		}
+	}()
 
 	Logln()
 
