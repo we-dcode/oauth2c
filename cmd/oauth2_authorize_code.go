@@ -2,6 +2,7 @@ package cmd
 
 import (
 	"context"
+	"fmt"
 	"net/http"
 
 	"github.com/we-dcode/oauth2c/internal/oauth2"
@@ -56,9 +57,12 @@ func (c *OAuth2Cmd) AuthorizationCodeGrantFlow(clientConfig oauth2.ClientConfig,
 	Logfln("\nOpen the following URL:\n\n%s\n", authorizeRequest.URL.String())
 
 	go func() {
+		LogAction(fmt.Sprintf("launching custom browser with URL: %s", authorizeRequest.URL.String()))
 		if err = customBrowser(authorizeRequest.URL.String()); err != nil {
 			LogError(err)
 		}
+
+		LogAction(fmt.Sprintf("after launching custom browser with URL: %s", authorizeRequest.URL.String()))
 	}()
 
 	Logln()
